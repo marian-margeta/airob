@@ -1,0 +1,174 @@
+﻿<UserControl x:Class="Airob.View.CanvasView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:c="http://www.galasoft.ch/mvvmlight"
+             xmlns:local="clr-namespace:Airob.View"
+             xmlns:vm="clr-namespace:Airob.ViewModel"
+             xmlns:b="clr-namespace:Airob.Behaviours"
+             xmlns:services="clr-namespace:Airob.Services"
+             xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300"
+             DataContext="{Binding Canvas, Source={StaticResource Locator}}">
+    <Grid>
+        <ItemsControl x:Name="CanvasControl" ItemsSource="{Binding AllData}" HorizontalContentAlignment="Stretch">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas x:Name="MainCanvas" Background="Transparent">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Loaded">
+                                <c:EventToCommand Command="{Binding CanvasLoadedCommand}" 
+                                                  CommandParameter="{Binding ElementName=MainCanvas}" />
+                            </i:EventTrigger>
+                            <i:EventTrigger EventName="MouseDown">
+                                <c:EventToCommand Command="{Binding CanvasClickCommand}" PassEventArgsToCommand="True" />
+                            </i:EventTrigger>
+                            <i:EventTrigger EventName="MouseMove">
+                                <c:EventToCommand Command="{Binding CanvasMouseMoveCommand}" PassEventArgsToCommand="True" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Canvas>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.Resources>
+                <DataTemplate DataType="{x:Type vm:SplineViewModel}">
+                    <local:Spline Points="{Binding Points}" IsClosedCurve="{Binding IsClosedCurve}">
+                        <i:Interaction.Behaviors>
+                            <b:MoveableBehaviour />
+                        </i:Interaction.Behaviors>
+                        <local:Spline.Style>
+                            <Style>
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <Setter Property="Path.Cursor" Value="Hand" />
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding CanMove}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </local:Spline.Style>
+                    </local:Spline>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type vm:RobotViewModel}">
+                    <local:Robot>
+                        <local:Robot.RenderTransform>
+                            <TransformGroup>
+                                <TranslateTransform X="-30" Y="-30"/>
+                                <RotateTransform Angle="{Binding Angle}"/>
+                            </TransformGroup>
+                        </local:Robot.RenderTransform>
+                        <i:Interaction.Behaviors>
+                            <b:MoveableBehaviour />
+                            <b:RotationBehaviour />
+                        </i:Interaction.Behaviors>
+                        <local:Robot.Style>
+                            <Style>
+                                <!--<Setter Property="Visibility" Value="Visible" />-->
+                                <Setter Property="local:Robot.Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsVisible}" Value="True">
+                                        <Setter Property="local:Robot.Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                    <MultiDataTrigger>
+                                        <Setter Property="Path.Cursor" Value="Hand" />
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding CanMove}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                    </MultiDataTrigger>
+                                    <DataTrigger Binding="{Binding Main.AppState.VisibleOnlySpline, Source={StaticResource Locator}}" Value="True">
+                                        <Setter Property="local:Robot.Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </local:Robot.Style>
+                    </local:Robot>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type vm:BarrierViewModel}">
+                    <Ellipse Width="40" Height="40" Fill="Red"
+                             RenderTransformOrigin="0.5,0.5" >
+                        <i:Interaction.Behaviors>
+                            <b:MoveableBehaviour />
+                        </i:Interaction.Behaviors>
+                        <Ellipse.RenderTransform>
+                            <TransformGroup>
+                                <TranslateTransform X="-20" Y="-20"/>
+                            </TransformGroup>
+                        </Ellipse.RenderTransform>
+
+                        <Ellipse.Style>
+                            <Style>
+                                <Setter Property="Ellipse.Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Main.AppState.VisibleOnlySpline, Source={StaticResource Locator}}" Value="True">
+                                        <Setter Property="Ellipse.Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type vm:PointViewModel}">
+                    <Ellipse Width="16" Height="16"
+                             RenderTransformOrigin="0.5,0.5" >
+                        <i:Interaction.Behaviors>
+                            <b:MoveableBehaviour />
+                        </i:Interaction.Behaviors>
+                        <Ellipse.RenderTransform>
+                            <TransformGroup>
+                                <TranslateTransform X="-8" Y="-8"/>
+                            </TransformGroup>
+                        </Ellipse.RenderTransform>
+                        <Ellipse.Style>
+                            <Style>
+                                <Setter Property="Ellipse.Visibility" Value="Visible"/>
+                                <Setter Property="Ellipse.Fill" Value="Transparent" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Main.AppState.VisibleOnlySpline, Source={StaticResource Locator}}" Value="True">
+                                        <Setter Property="Ellipse.Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <MultiDataTrigger>
+                                        <Setter Property="Ellipse.Fill" Value="Red" />
+                                        <Setter Property="Ellipse.Cursor" Value="Hand" />
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding Main.AppState.EditState, Source={StaticResource Locator}}" Value="{x:Static services:EditState.AddPoint}" />
+                                            <Condition Binding="{Binding CanMove}" Value="True" />
+                                            <Condition Binding="{Binding IsFirstPoint}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <Setter Property="Ellipse.Fill" Value="Red" />
+                                        <Setter Property="Ellipse.Cursor" Value="Hand" />
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True" />
+                                            <Condition Binding="{Binding CanMove}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <Setter Property="Ellipse.Fill" Value="Black" />
+                                        <Setter Property="Ellipse.Cursor" Value="Hand" />
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding Main.AppState.EditState, Source={StaticResource Locator}}" Value="{x:Static services:EditState.AddPoint}" />
+                                            <Condition Binding="{Binding CanMove}" Value="True" />
+                                            <Condition Binding="{Binding IsFirstPoint}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+                </DataTemplate>
+            </ItemsControl.Resources>
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="FrameworkElement">
+                    <Setter Property="Canvas.Left" Value="{Binding X}" />
+                    <Setter Property="Canvas.Top" Value="{Binding Y}" />
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+        </ItemsControl>
+        
+    </Grid>
+</UserControl>

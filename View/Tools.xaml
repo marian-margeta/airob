@@ -1,0 +1,92 @@
+﻿<UserControl x:Class="Airob.View.Tools"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:c="http://www.galasoft.ch/mvvmlight"
+             xmlns:local="clr-namespace:Airob.View"
+             xmlns:converters="clr-namespace:Airob.Converters"
+             xmlns:services="clr-namespace:Airob.Services"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300"
+             DataContext="{Binding Main, Source={StaticResource Locator}}">
+    <UserControl.Resources>
+        <Style TargetType="{x:Type RadioButton}" BasedOn="{StaticResource {x:Type ToggleButton}}">
+            <Setter Property="BorderBrush" Value="{x:Null}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="4,5" />
+        </Style>
+        <converters:EnumToBoolConverter x:Key="EnumToBoolConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <Border BorderBrush="Gainsboro" BorderThickness="2" CornerRadius="5" Background="#FFEAEAEA" VerticalAlignment="Top" Margin="3">
+            <StackPanel VerticalAlignment="Top" Orientation="Vertical" Margin="0" >
+                <RadioButton ToolTip="Move objects"
+                    IsChecked="{Binding Path=AppState.EditState, 
+                        Converter={StaticResource EnumToBoolConverter}, 
+                        ConverterParameter={x:Static services:EditState.Motion}
+                        }">
+                    <Path Width="18" Stretch="Uniform" Fill="Black" Data="F1 M 133.333,66.6667L 110.667,44L 110.667,61.3334L 72,61.3334L 72,22.6667L 89.3333,22.6667L 66.6667,1.52588e-005L 44,22.6667L 61.3333,22.6667L 61.3333,61.3334L 22.6667,61.3334L 22.6667,44L 0,66.6667L 22.6667,89.3334L 22.6667,72L 61.3333,72L 61.3333,110.667L 44,110.667L 66.6667,133.333L 89.3333,110.667L 72,110.667L 72,72L 110.667,72L 110.667,89.3334L 133.333,66.6667 Z "/>
+                </RadioButton>
+                <RadioButton ToolTip="Rotation of the robot"
+                    IsChecked="{Binding Path=AppState.EditState, 
+                        Converter={StaticResource EnumToBoolConverter}, 
+                        ConverterParameter={x:Static services:EditState.Rotation}}">
+                    <Path Width="16" Stretch="Uniform" Fill="Black" Data="F1 M 20.16,18.4264C 20.1046,20.6826 19.3332,22.5612 17.8459,24.0623C 16.3586,25.5634 14.4879,26.3426 12.2336,26.4C 9.97745,26.3426 8.09882,25.5634 6.59772,24.0623C 5.09662,22.5612 4.31738,20.6825 4.26001,18.4264C 4.31537,16.1964 5.08658,14.3378 6.57355,12.8507C 8.06058,11.3636 9.93115,10.58 12.1853,10.5L 11.0739,17.6048L 23.2842,8.32254L 10.5906,3.05176e-005L 12.137,6.24002C 10.5067,6.24692 8.95892,6.55258 7.49365,7.15701C 6.02832,7.76147 4.71387,8.62335 3.55023,9.74265C 1.23074,12.1707 0.0473022,15.0653 0,18.4264C 0.00592041,20.0818 0.313599,21.6518 0.923035,23.1362C 1.5325,24.6206 2.40823,25.9451 3.55023,27.1098C 4.71487,28.2725 6.03937,29.1541 7.52383,29.7547C 9.00824,30.3553 10.5782,30.6571 12.2336,30.66C 13.8891,30.6571 15.459,30.3553 16.9435,29.7547C 18.428,29.1541 19.7526,28.2725 20.9174,27.1098C 22.0574,25.9451 22.9252,24.6206 23.5208,23.1362C 24.1163,21.6518 24.416,20.0818 24.42,18.4264L 20.16,18.4264 Z "/>
+                </RadioButton>
+                <RadioButton ToolTip="Add new points to line"
+                    IsChecked="{Binding Path=AppState.EditState, 
+                        Converter={StaticResource EnumToBoolConverter}, 
+                        ConverterParameter={x:Static services:EditState.AddPoint}
+                        }">
+                    <Grid>
+                        <Path Width="16" Stretch="Uniform" UseLayoutRounding="False" Fill="Black" Data="F1 M 32.5381,94.1914L 0,94.1914L 0,61.6553L 48.8076,12.8457L 81.3467,45.3848L 32.5381,94.1914 Z M 90.5,36.2266L 85.0801,41.6494L 52.542,9.11621L 57.9658,3.69238C 57.9658,3.69238 61.3975,0 63.3105,0C 65.2266,0 68.8076,3.69238 68.8076,3.69238L 90.5,25.3828C 90.5,25.3828 94.1055,28.8262 94.1055,30.7432C 94.1055,32.6582 90.5,36.2266 90.5,36.2266 Z "/>
+                    </Grid>
+                </RadioButton>
+                <RadioButton ToolTip="Remove line">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Checked">
+                            <c:EventToCommand Command="{Binding RemoveCommand}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    <Path Width="15" Stretch="Uniform" UseLayoutRounding="False" Fill="Black" Data="F1 M 69,6.00098C 70.6582,6.00098 72,7.34473 72,9.00098C 72,10.6572 70.6582,12.001 69,12.001L 3,12.001C 1.34277,12.001 0,10.6572 0,9.00098C 0,7.34473 1.34277,6.00098 3,6.00098L 18,6.00098L 18,3.00098C 18,1.34473 19.3428,0.000976563 21,0.000976563L 51,0.000976563C 52.6582,0.000976563 54,1.34473 54,3.00098L 54,6.00098L 69,6.00098 Z M 48.8564,72.001L 53.999,66.8564L 41.1426,54.001L 53.999,41.1455L 48.8564,36.001L 36,48.8584L 23.1426,36.001L 17.999,41.1465L 30.8564,54.001L 18,66.8574L 23.1426,72.001L 35.999,59.1436L 48.8564,72.001 Z M 5.99902,90.001L 5.99902,18.001L 65.999,18.001L 65.999,90.001L 5.99902,90.001 Z "/>
+                </RadioButton>
+                <RadioButton
+                    Width="30" Height="30"
+                    ToolTip="Add barrier" 
+                    IsChecked="{Binding Path=AppState.EditState, 
+                        Converter={StaticResource EnumToBoolConverter}, 
+                        ConverterParameter={x:Static services:EditState.AddBarrier}
+                    }">
+                    <Canvas Width="910" Height="910">
+                        <Canvas.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform ScaleX="0.018" ScaleY="0.018" />
+                                <TranslateTransform X="3" />
+                            </TransformGroup>
+                        </Canvas.RenderTransform>
+                        <Path UseLayoutRounding="False" Fill="Black" 
+                          Data="M175,753h-14V411H77v342H63c-11,0-20,9-20,20v14c0,11,9,20,20,20h112c11,0,20-9,20-20v-14C195,762,186,753,175,753z"/>
+                        <Path UseLayoutRounding="False" Fill="Black" 
+                          Data="M854,753h-14V411h-84v342h-14c-11,0-20,9-20,20v14c0,11,9,20,20,20h112c11,0,20-9,20-20v-14C874,762,865,753,854,753z"/>
+                        <Polygon UseLayoutRounding="False" Fill="Black" Points="340.2,103 340,103 210.7,103 210.8,103.2 317.3,368 446.4,368 340.2,103.2" />
+                        <Polygon UseLayoutRounding="False" Fill="Black" Points="592.7,103 463.3,103 569.9,368 698.9,368 592.7,103.2 " />
+                        <Path UseLayoutRounding="False" Fill="Black" 
+                          Data="M87.6,103H20.3C9.3,103,0,111.5,0,122.5v227.4C0,357.8,4.9,365,11.5,368h182.4L87.6,103z"/>
+                        <Path UseLayoutRounding="False" Fill="Black" 
+                          Data="M890.4,103H715.8L822.4,368h76.8c6.6-3,10.8-10.2,10.8-18.1V122.5C910,111.5,901.4,103,890.4,103z"/>
+                    </Canvas>
+                </RadioButton>
+                <Separator Margin="0" />
+                <RadioButton ToolTip="Run simulation" Height="30"
+                    IsChecked="{Binding Path=AppState.EditState, 
+                        Converter={StaticResource EnumToBoolConverter}, 
+                        ConverterParameter={x:Static services:EditState.Simulation}}">
+                    <Polygon Width="13" Stretch="Uniform" UseLayoutRounding="False" Fill="Black" Points="15,7.5 0,0 0,15" />
+                </RadioButton>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
