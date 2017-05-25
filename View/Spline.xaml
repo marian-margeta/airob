@@ -9,7 +9,7 @@
              xmlns:local="clr-namespace:Airob.View"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <Path x:Name="path" StrokeThickness="10" Stroke="Black" 
+    <Path x:Name="path" StrokeThickness="30" Stroke="Black" 
           StrokeStartLineCap="Round" StrokeEndLineCap="Round" 
           StrokeDashCap="Round" StrokeLineJoin="Round" >
     </Path>

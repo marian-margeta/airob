@@ -20,22 +20,23 @@ namespace Airob.Model {
         public const double LENGTH = 60;
         public const double WALL_RADIUS = 20;
         public const double SONIC_RADIUS = 30;
-        public const double LINE_SENSOR_DISTANCE = 20;
+        public const double LINE_SENSOR_DISTANCE = 10;
         public const double LINE_SENSOR_INNER_DISTANCE = 10;
 
         public const double SPEED = 1;
-        public const double SLOWDOWN = 0.5;
+        public const double BSPEED = 5;
+        public const double SLOWDOWN = 0.05;
 
         private readonly Dictionary<RobotAction, (double left, double right)> ACTIONS =
             new Dictionary<RobotAction, (double left, double right)>() {
                 [RobotAction.F] = (SPEED, SPEED),
-                [RobotAction.B] = (-SPEED, -SPEED),
-                [RobotAction.R] = (SPEED, -SPEED),
+                [RobotAction.B] = (-BSPEED, -BSPEED),
                 [RobotAction.L] = (-SPEED, SPEED),
+                [RobotAction.R] = (SPEED, -SPEED),
                 [RobotAction.FL] = (SPEED * SLOWDOWN, SPEED),
                 [RobotAction.FR] = (SPEED, SPEED * SLOWDOWN),
-                [RobotAction.BL] = (-SPEED * SLOWDOWN, -SPEED),
-                [RobotAction.BR] = (-SPEED, -SPEED * SLOWDOWN),
+                [RobotAction.BL] = (-BSPEED * SLOWDOWN, -BSPEED),
+                [RobotAction.BR] = (-BSPEED, -BSPEED * SLOWDOWN),
                 [RobotAction.Stop] = (0, 0),
             };
         
@@ -58,7 +59,7 @@ namespace Airob.Model {
         public bool DoAction(RobotAction action, double speed) {
             var (left, right) = ACTIONS[action];
 
-            return Move(left * speed, speed * speed);
+            return Move(left * speed, right * speed);
         }
 
         public bool Move(double speedL, double speedR) {

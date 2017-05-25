@@ -133,10 +133,8 @@ namespace Airob.ViewModel {
 
                 var (action, speed) = Policy.Decide(state);
                 Robot.DoAction(action, speed);
+                Console.WriteLine((l1, l2, l3));
             }
-
-            var us = Robot.Robot.DistanceFromPath(splineMap);
-            Console.WriteLine(us);
         }
 
         private void Train(string s) {

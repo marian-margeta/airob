@@ -27,10 +27,10 @@ namespace Airob.Services {
     }
 
     class DecisionTree : ITrainable {
-        private static int INIT_POPULATION = 150;
-        private static int ELITE_POPULATION = 20;
-        private static int REMAINING_POPULATION = 80;
-        private static int ITERATIONS = 20;
+        private static int INIT_POPULATION = 200;
+        private static int ELITE_POPULATION = 40;
+        private static int REMAINING_POPULATION = 60;
+        private static int ITERATIONS = 10;
         
         public List<RobotAction> LineActions { get; set; }
         public double Distance { get; set; }
@@ -49,6 +49,7 @@ namespace Airob.Services {
 
             for (int l = 0; l < ITERATIONS; l++) {
                 var dict = new ConcurrentDictionary<DecisionTree, double>();
+                Console.WriteLine(l);
 
                 Parallel.ForEach(population, instance => {
                     if (instance.loss != -1) {
@@ -62,6 +63,7 @@ namespace Airob.Services {
                     }
                 });
 
+
                 foreach (var v in dict) {
                     v.Key.loss = v.Value;
                 }
@@ -73,6 +75,7 @@ namespace Airob.Services {
                 if (best == null || best.loss > bestPop.loss) {
                     best = bestPop;
                 }
+                Console.WriteLine($"loss: {best.loss}");
 
                 // Selection
                 var sum = dict
@@ -90,7 +93,7 @@ namespace Airob.Services {
 
                 var remaining = ordered
                     .Skip(ELITE_POPULATION)
-                    .RandomPermutation(x => x.Value)
+                    .RandomPermutation(x => 100000 - x.Value)
                     .Select(x => x.Key)
                     .Take(REMAINING_POPULATION)
                     .ToList();
@@ -102,18 +105,20 @@ namespace Airob.Services {
                         : x)
                     .ToList();
 
-                var selectionPerm = Enumerable
-                    .Range(0, ELITE_POPULATION + REMAINING_POPULATION)
-                    .RandomPermutation()
-                    .ToList();
-
                 var newGeneration = new List<DecisionTree>();
-                for (int i = 0; i < selectionPerm.Count; i += 2) {
-                    var a1 = selectionPerm[i];
-                    var a2 = selectionPerm[i + 1];
+                for (int j = 0; j < 2; j++) {
+                    var selectionPerm = Enumerable
+                        .Range(0, ELITE_POPULATION + REMAINING_POPULATION)
+                        .RandomPermutation()
+                        .ToList();
 
-                    var child = Crossover(survived[a1], survived[a2]);
-                    newGeneration.Add(child);
+                    for (int i = 0; i < selectionPerm.Count; i += 2) {
+                        var a1 = selectionPerm[i];
+                        var a2 = selectionPerm[i + 1];
+
+                        var child = Crossover(survived[a1], survived[a2]);
+                        newGeneration.Add(child);
+                    }
                 }
 
                 population = survived
@@ -147,7 +152,7 @@ namespace Airob.Services {
         private static DecisionTree GenerateRandom() {
             return new DecisionTree() {
                 Distance = random.NextDouble(5, 50),
-                Speed = random.NextDouble(0.3, 2),
+                Speed = random.NextDouble(0.3, 1.0),
                 LineActions = Enumerable.Range(0, 8)
                     .Select(x => (RobotAction)random.Next(8))
                     .ToList()
@@ -174,10 +179,15 @@ namespace Airob.Services {
                 .Where(x => x)
                 .Sum(x => 1);
 
-            var maxIter = toReveal / 2;
+            var maxIter = toReveal;
 
             int it = 0;
+            int lastUpdate = 0;
             while (revealed != toReveal && it <= maxIter) {
+                if (lastUpdate + 30 < it) {
+                    return toReveal + toReveal - revealed;
+                }
+
                 var (l1, l2, l3) = robot.LineSensor(splineMap);
 
                 var state = new RobotState(
@@ -194,19 +204,28 @@ namespace Airob.Services {
                         || robot.Y < 0 
                         || robot.X.Round() >= map.GetLength(1) 
                         || robot.Y.Round() >= map.GetLength(0)) {
-                    return toReveal;
+                    return toReveal + toReveal;
                 }
 
-                revealed += robot.MarkVisitedArea(map);
+                var newRevealed = robot.MarkVisitedArea(map);
+
+                if (newRevealed > 0) {
+                    revealed += newRevealed;
+                    lastUpdate = it;
+                }
 
                 if (robot.DistanceFromPath(splineMap) > Robot.LENGTH / 2) {
-                    return toReveal - revealed;
+                    return toReveal + toReveal - revealed;
+                }
+
+                if (revealed == toReveal) {
+                    return 0.3 * it + toReveal - revealed;
                 }
 
                 it++;
             }
 
-            return toReveal - revealed;
+            return 0.3 * it + toReveal - revealed;
         }
 
         private DecisionTree Mutate() {
@@ -214,16 +233,16 @@ namespace Airob.Services {
             var newSpeed = Speed;
             var newLineActions = new List<RobotAction>(LineActions);
 
-            if (random.Next(100) < 10) {
+            if (random.Next(100) < 40) {
                 newDistance += random.Normal(mu: 0, sigma: 1);
             }
 
-            if (random.Next(100) < 10) {
+            if (random.Next(100) < 40) {
                 newSpeed += random.Normal(mu: 0, sigma: 0.2);
             }
 
             for (int i = 0; i < LineActions.Count; i++) {
-                if (random.Next(100) < 10) {
+                if (random.Next(100) < 30) {
                     newLineActions[i] = (RobotAction)random.Next(7);
                 }
             }
@@ -243,9 +262,9 @@ namespace Airob.Services {
             var (l1, l2, l3) = state.Line;
 
             uint line = 0;
-            if (l1) line += 1 << 0;
+            if (l1) line += 1 << 2;
             if (l2) line += 1 << 1;
-            if (l3) line += 1 << 2;
+            if (l3) line += 1 << 0;
             
             return (LineActions[(int)line], Speed);
         }
