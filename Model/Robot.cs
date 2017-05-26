@@ -24,8 +24,8 @@ namespace Airob.Model {
         public const double LINE_SENSOR_INNER_DISTANCE = 10;
 
         public const double SPEED = 1;
-        public const double BSPEED = 5;
-        public const double SLOWDOWN = 0.05;
+        public const double BSPEED = 3.7;
+        public const double SLOWDOWN = 0.01;
 
         private readonly Dictionary<RobotAction, (double left, double right)> ACTIONS =
             new Dictionary<RobotAction, (double left, double right)>() {

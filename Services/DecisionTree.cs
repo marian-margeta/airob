@@ -28,8 +28,8 @@ namespace Airob.Services {
 
     class DecisionTree : ITrainable {
         private static int INIT_POPULATION = 200;
-        private static int ELITE_POPULATION = 40;
-        private static int REMAINING_POPULATION = 60;
+        private static int ELITE_POPULATION = 20;
+        private static int REMAINING_POPULATION = 80;
         private static int ITERATIONS = 10;
         
         public List<RobotAction> LineActions { get; set; }
@@ -158,7 +158,7 @@ namespace Airob.Services {
                     .ToList()
             };
         }
-
+        
         public double Loss(Scene scene) {
             scene = scene.Clone();
 
